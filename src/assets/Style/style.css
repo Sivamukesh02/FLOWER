@@ -1,0 +1,183 @@
+/* =====================================================
+   Neon flower bouquet - flower.css
+   Timeline (seconds, set from Proj.jsx through --d / --g):
+     0.3  - 4.5   green leaves grow one by one
+     4.3  - 8.0   coloured stems draw + berry clusters pop
+     7.4  - 13.6  each flower blooms, then its centre buds grow
+     14.0 - 24.0  glow on each flower, then removed one by one
+   ===================================================== */
+
+.fl-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fl-svg {
+  height: 92vh;
+  max-width: 96vw;
+  aspect-ratio: 800 / 580;
+  overflow: visible;
+}
+
+.fl-hint {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  translate: -50% 0;
+  margin: 0;
+  z-index: 2;
+  font: 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: rgba(170, 230, 255, 0.55);
+  pointer-events: none;
+  animation: flFadeIn 1.2s ease 24s both;
+}
+
+/* ---------- 1. green leaves ---------- */
+.fl-leaf {
+  transform-box: view-box; /* transform-origin is set per leaf in the JSX */
+  animation: flLeaf 1.4s cubic-bezier(0.22, 0.9, 0.3, 1) var(--d, 0s) both;
+  filter: drop-shadow(0 0 6px rgba(70, 220, 100, 0.35));
+}
+
+@keyframes flLeaf {
+  0%   { transform: scale(0.5, 0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: scale(1, 1); opacity: 1; }
+}
+
+/* ---------- 2. coloured stems ---------- */
+.fl-stem {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+  animation: flDraw 1.3s ease-out var(--d, 0s) both;
+  filter: drop-shadow(0 0 5px var(--c, #8b5cf6));
+}
+
+@keyframes flDraw {
+  0%   { stroke-dashoffset: 1.02; opacity: 0; }
+  4%   { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+/* ---------- berry clusters at the base ---------- */
+.fl-berry {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: var(--c);
+  stroke-width: 1.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flPop 0.7s cubic-bezier(0.3, 1.6, 0.5, 1) var(--d, 0s) both;
+  filter: drop-shadow(0 0 4px var(--c));
+}
+
+@keyframes flPop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- 3. flower petals bloom ---------- */
+.fl-petal {
+  fill: url(#flPetalGrad);
+  stroke: rgba(190, 250, 255, 0.8);
+  stroke-width: 0.8;
+  transform-origin: 0 0; /* = flower centre (flower group is translated there) */
+  animation: flBloom 1.3s cubic-bezier(0.2, 1.2, 0.4, 1) var(--d, 0s) both;
+}
+
+@keyframes flBloom {
+  0%   { transform: scale(0) rotate(-25deg); opacity: 0; }
+  40%  { opacity: 0.9; }
+  100% { transform: scale(1) rotate(0deg); opacity: 0.88; }
+}
+
+.fl-core {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 5px #7ff);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flPop 0.6s ease var(--d, 0s) both;
+}
+
+/* ---------- 4. centre buds (stamens) grow ---------- */
+.fl-stamen {
+  transform-origin: 0 0;
+  animation: flStamen 1.2s cubic-bezier(0.2, 1.3, 0.4, 1) var(--d, 0s) both;
+}
+
+.fl-stamen line {
+  stroke: #d9fbff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.fl-bud {
+  fill: rgba(255, 255, 255, 0.55);
+  stroke: #7ff;
+  stroke-width: 1;
+}
+
+.fl-bud-dot {
+  fill: #ff6fb5;
+  filter: drop-shadow(0 0 3px #ff6fb5);
+}
+
+@keyframes flStamen {
+  from { transform: scale(0.15, 0); opacity: 0; }
+  to   { transform: scale(1, 1); opacity: 1; }
+}
+
+/* ---------- 5. glow in -> hold -> glow out (one flower at a time) ---------- */
+/* total 6.4s: in 1s, hold, out 1.2s. Delay (--g) is different for each flower. */
+
+.fl-glow {
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: flGlow 6.4s linear var(--g, 0s) both;
+}
+
+.fl-lit {
+  fill: url(#flPetalLit);
+  opacity: 0;
+  pointer-events: none;
+  animation: flGlow 6.4s linear var(--g, 0s) both;
+}
+
+.fl-flower {
+  animation: flHalo 6.4s linear var(--g, 0s) both;
+}
+
+@keyframes flGlow {
+  0%      { opacity: 0; }
+  15.6%   { opacity: 1; }
+  81.25%  { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+@keyframes flHalo {
+  0%      { filter: drop-shadow(0 0 0 rgba(90, 230, 255, 0)); }
+  15.6%   { filter: drop-shadow(0 0 12px rgba(90, 230, 255, 0.95)) brightness(1.15); }
+  81.25%  { filter: drop-shadow(0 0 12px rgba(90, 230, 255, 0.95)) brightness(1.15); }
+  100%    { filter: drop-shadow(0 0 0 rgba(90, 230, 255, 0)); }
+}
+
+@keyframes flFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fl-root *,
+  .fl-hint {
+    animation-duration: 0.01s !important;
+    animation-delay: 0s !important;
+  }
+}
